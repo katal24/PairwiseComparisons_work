@@ -15,31 +15,85 @@ public class PairwiseCompairsons {
 
     private ScriptEngineManager manager;
     private RCallerScriptEngine engine;
-    private double[][] matrix;
-    private double[] vector;
-    private double result;
+    private boolean keepOpenConnection;
+    private boolean engineIsOpen;
 
     public PairwiseCompairsons(){
-       makeEngine();
-    }
-
-    public PairwiseCompairsons(double[][] matrix, double[] vector){
         makeEngine();
-        this.matrix = matrix;
-        this.vector = vector;
+        keepOpenConnection = false;
+        engineIsOpen = false;
     }
 
-    public PairwiseCompairsons(double[][] matrix){
+    public PairwiseCompairsons(boolean keepOpenConnection){
         makeEngine();
-        this.matrix = matrix;
+        this.keepOpenConnection = keepOpenConnection;
+        engineIsOpen = false;
+        if(keepOpenConnection){
+            makeCaller();
+        }
     }
 
-    public PairwiseCompairsons(double[] vector){
-        makeEngine();
-        this.vector = vector;
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        if(engineIsOpen){
+            engine.close();
+        }
     }
 
-    private void validateDimOfMatrix(double[][] matrix) throws PcMatrixException {
+    void makeEngine() {
+        manager = new ScriptEngineManager();
+    }
+
+    void makeCaller(){
+        engine = (RCallerScriptEngine) manager.getEngineByName("RCaller");
+        try {
+            engine.eval("source(\"pairwiseComparisons.R\")");
+        } catch (ScriptException e) {
+            e.printStackTrace();
+        }
+        engineIsOpen = true;
+    }
+
+    public void close(){
+            engine.close();
+            engineIsOpen = false;
+    }
+
+    public void open(){
+        if(!engineIsOpen) {
+            makeCaller();
+        }
+    }
+
+    private void openConnection(){
+        if(!keepOpenConnection && !engineIsOpen){
+            makeCaller();
+            engineIsOpen = true;
+        }
+    }
+
+    private void closeConnection(){
+        if(!keepOpenConnection && engineIsOpen){
+            engine.close();
+            engineIsOpen = false;
+        }
+    }
+
+    public void setKeepOpenConnection(boolean keepOpenConnection){
+        if(!this.keepOpenConnection && keepOpenConnection && !engineIsOpen){
+            makeCaller();
+        }
+        this.keepOpenConnection = keepOpenConnection;
+    }
+
+    public boolean getKeepOpenConnection(){
+        return keepOpenConnection;
+    }
+
+    // // VALIDATION
+
+   private void validateDimOfMatrix(double[][] matrix) throws PcMatrixException {
         int dimension1 = matrix.length;
 
         for(int i=0; i<dimension1; i++){
@@ -55,6 +109,7 @@ public class PairwiseCompairsons {
         validateDimOfMatrix(matrix);
         int dimension1 = matrix.length;
         int dimension2 = matrix[0].length;
+
         for(int i=0; i<dimension1; i++){
             for(int j=0; j<dimension2; j++){
                 if(i==j && matrix[i][j]!=1){
@@ -148,13 +203,11 @@ public class PairwiseCompairsons {
         if(vectorA.length != vectorB.length){
             throw new PcValueException("Vectors must be the same size");
         }
-
         for(int i=0; i<vectorA.length; i++){
             if(!isValueInVector(vectorB, vectorA[i]) || !isValueInVector(vectorA, vectorB[i]) ){
                 throw new PcValueException("Vectors must have the same values");
             }
         }
-
     }
 
     private void validateDoubleVector(double[] vector) throws PcValueException {
@@ -164,7 +217,6 @@ public class PairwiseCompairsons {
             }
         }
     }
-
 
     private boolean isValueInVector(double[] vector, double value){
         for(int i=0; i<vector.length; i++){
@@ -181,9 +233,7 @@ public class PairwiseCompairsons {
         }
     }
 
-
     private void validateInt(int value) throws PcValueException {
-
             if(value<0){
                 throw new PcValueException("Value is not positive.");
             }
@@ -201,126 +251,12 @@ public class PairwiseCompairsons {
         }
     }
 
-//
-//    private void validateMatrixBlock(double[][] matrix){
-//        try {
-//            validateMatrix(matrix);
-//        } catch (PcMatrixException e) {
-//            throw new RuntimeException(e);
-////            e.printStackTrace();
-////            System.exit(1);
-//        }
-//    }
-//
-//    private void validateMatrixAndVectorBlock(double[][] matrix, double[] vector){
-//        try {
-//            validateMatrixAndVector(matrix, vector);
-//        } catch (PcMatrixException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    private void validateIntVectorBlock(int[] vector){
-//        try {
-//            validateIntVector(vector);
-//        } catch (PcValueException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    private void validateDoubleVectorBlock(double[] vector){
-//        try {
-//            validateDoubleVector(vector);
-//        } catch (PcValueException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    private void validateTriadBlock(double[] triad){
-//        try {
-//            validateTriad(triad);
-//        } catch (PcValueException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    private void validateIntBlock(int value){
-//        try {
-//            validateInt(value);
-//        } catch (PcValueException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    private void validateGetFromMatrixBlock(double[][] matrix, int row, int column){
-//        try {
-//            validateGetFromMatrix(matrix, row, column);
-//        } catch (PcMatrixException e) {
-//            e.printStackTrace();
-//            System.exit(0);
-//        }
-//    }
-//
-//    private void validateIntVectorToRowDeleteBlock(double[][] matrix, int[] vector){
-//        try {
-//            validateIntVectorToRowDelete(matrix, vector);
-//        } catch (PcValueException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    private void validateIntVectorToColumnDeleteBlock(double[][] matrix, int[] vector){
-//        try {
-//            validateIntVectorToColumnDelete(matrix, vector);
-//        } catch (PcValueException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    private void validateIntVectorToRowAndColumnDeleteBlock(double[][] matrix, int[] vector){
-//        try {
-//            validateIntVectorToRowAndColumnDelete(matrix, vector);
-//        } catch (PcValueException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
-
-    void makeEngine() {
-        manager = new ScriptEngineManager();
-    }
-
-    public double[][] getMatrix(){
-        return this.matrix;
-    }
-
-    public void setMatrix(double[][] matrix){
-        this.matrix = matrix;
-    }
-
-    public double[] getVector(){
-        return this.vector;
-    }
-
-    public void setVector(double[]vector){
-        this.vector = vector;
-    }
-
-    RCallerScriptEngine makeCaller(){
-        engine = (RCallerScriptEngine) manager.getEngineByName("RCaller");
-        try {
-            engine.eval("source(\"pairwiseComparisons.R\")");
-        } catch (ScriptException e) {
-            e.printStackTrace();
-        }
-        return engine;
-    }
-
-    //// PAIRWISE COMPAIRSONS METHODS
+    //// PAIRWISE COMPARISONS METHODS
 
     public double principalEigenValue(double[][] matrix){
+        openConnection();
         validateMatrix(matrix);
-        engine = makeCaller();
         engine.put("m", matrix);
         try {
             engine.eval("res <- principalEigenValue(m)");
@@ -328,8 +264,8 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
-        engine.close();
+        double result = ((double[]) engine.get("res"))[0];
+        closeConnection();
         return result;
     }
 
@@ -337,7 +273,7 @@ public class PairwiseCompairsons {
     public double principalEigenValueSym(double[][] matrix){
         // walidacja
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             //timer: metoda + argumenty
@@ -346,8 +282,8 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
-        engine.close();
+        double result = ((double[]) engine.get("res"))[0];
+        closeConnection();
         return result;
     }
 
@@ -357,7 +293,7 @@ public class PairwiseCompairsons {
 
     public double[] principalEigenVector(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- principalEigenVector(m)");
@@ -365,15 +301,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double[] principalEigenVectorSym(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- principalEigenVectorSym(m)");
@@ -381,15 +317,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double saatyIdx(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- saatyIdx(m)");
@@ -397,15 +333,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
-        engine.close();
+        double result = ((double[]) engine.get("res"))[0];
+        closeConnection();
         return result;
     }
 
 
     public double saatyIdxSym(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- saatyIdxSym(m)");
@@ -413,15 +349,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
-        engine.close();
+        double result = ((double[]) engine.get("res"))[0];
+        closeConnection();
         return result;
     }
 
 
     public double[] eigenValueRank(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- eigenValueRank(m)");
@@ -429,15 +365,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double[] eigenValueRankSym(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- eigenValueRankSym(m)");
@@ -445,8 +381,8 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
@@ -468,7 +404,7 @@ public class PairwiseCompairsons {
         validateCheckSize(countLenth.size());
 
         double[][] matrix = rbindMatrices(matrices);
-        engine = makeCaller();
+        openConnection();
         engine.put("M", mainMatrix);
         engine.put("matrices", matrix);
 
@@ -478,15 +414,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double[] geometricRank(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- geometricRank(m)");
@@ -494,15 +430,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double[] geometricRescaledRank(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- geometricRescaledRank(m)");
@@ -510,8 +446,8 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
@@ -520,7 +456,7 @@ public class PairwiseCompairsons {
         validateInt(row);
         validateInt(column);
         validateGetFromMatrix(matrix, row, column);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("r", row);
         engine.put("c", column);
@@ -530,15 +466,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
-        engine.close();
+        double result = ((double[]) engine.get("res"))[0];
+        closeConnection();
         return result;
     }
 
 
     public double[][] recreatePCMatrix(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- t(recreatePCMatrix(m))");
@@ -546,9 +482,9 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
-        engine.close();
-        return matrix;
+        double[][] matrixResult = (double[][]) engine.get("res");
+        closeConnection();
+        return matrixResult;
     }
 
 
@@ -557,7 +493,7 @@ public class PairwiseCompairsons {
         validateIntVector(listOfRows);
         validateIntVectorToRowDelete(matrix, listOfRows);
 
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("l", listOfRows);
         try {
@@ -582,7 +518,7 @@ public class PairwiseCompairsons {
             }
         }
 
-        engine.close();
+        closeConnection();
         return m;
     }
 
@@ -592,7 +528,7 @@ public class PairwiseCompairsons {
         validateIntVector(listOfColumns);
         validateIntVectorToColumnDelete(matrix, listOfColumns);
 
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("l", listOfColumns);
         try {
@@ -618,7 +554,7 @@ public class PairwiseCompairsons {
             }
         }
 
-        engine.close();
+        closeConnection();
         return m;
     }
 
@@ -627,7 +563,7 @@ public class PairwiseCompairsons {
         validateMatrix(matrix);
         validateIntVector(listOfRowsColumns);
         validateIntVectorToRowAndColumnDelete(matrix, listOfRowsColumns);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("l", listOfRowsColumns);
         try {
@@ -651,50 +587,50 @@ public class PairwiseCompairsons {
                 l.remove(0);
             }
         }
-        engine.close();
+        closeConnection();
         return m;
     }
 
 
     public double[][] setDiagonal(double[][] matrix, double valueToSet){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", valueToSet);
         try {
-            engine.eval("res <- setDiagonal(m,v)");
+            engine.eval("res <- t(setDiagonal(m,v))");
         } catch (ScriptException e) {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
+        double[][] matrixResult = (double[][]) engine.get("res");
 
-        engine.close();
-        return matrix;
+        closeConnection();
+        return matrixResult;
     }
 
 
     public double[][] HREmatrix(double[][] matrix, double[] knowVector){
-        validateMatrixAndVector(matrix, vector);
-        engine = makeCaller();
+        validateMatrixAndVector(matrix, knowVector);
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", knowVector);
         try {
-            engine.eval("res <- HREmatrix(m,v)");
+            engine.eval("res <- t(HREmatrix(m,v))");
         } catch (ScriptException e) {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
+        double[][] matrixResult = (double[][]) engine.get("res");
 
-        engine.close();
-        return matrix;
+        closeConnection();
+        return matrixResult;
     }
 
 
     public double[] HREconstantTermVector(double[][] matrix, double[] knowVector){
-        validateMatrixAndVector(matrix, vector);
-        engine = makeCaller();
+        validateMatrixAndVector(matrix, knowVector);
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", knowVector);
         try {
@@ -703,16 +639,16 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
+        double[] vector = (double[]) engine.get("res");
 
-        engine.close();
+        closeConnection();
         return vector;
     }
 
 
     public double[] HREpartialRank(double[][] matrix, double[] knowVector){
         validateMatrixAndVector(matrix, knowVector);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", knowVector);
         try {
@@ -721,16 +657,16 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
+        double[] vector = (double[]) engine.get("res");
 
-        engine.close();
+        closeConnection();
         return vector;
     }
 
 
     public double[] HREfullRank(double[][] matrix,  double[] knowVector){
         validateMatrixAndVector(matrix, knowVector);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", knowVector);
         try {
@@ -739,15 +675,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double[] HRErescaledRank(double[][] matrix,  double[] knowVector){
         validateMatrixAndVector(matrix, knowVector);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", knowVector);
         try {
@@ -756,15 +692,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double[][] HREgeomMatrix(double[][] matrix,  double[] knowVector){
         validateMatrixAndVector(matrix, knowVector);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", knowVector);
         try {
@@ -773,15 +709,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
-        engine.close();
-        return matrix;
+        double[][] matrixResult = (double[][]) engine.get("res");
+        closeConnection();
+        return matrixResult;
     }
 
 
     public double[] HREgeomConstantTermVector(double[][] matrix,  double[] knowVector){
         validateMatrixAndVector(matrix, knowVector);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", knowVector);
         try {
@@ -790,15 +726,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double[] HREgeomIntermediateRank(double[][] matrix,  double[] knowVector){
         validateMatrixAndVector(matrix, knowVector);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", knowVector);
         try {
@@ -807,15 +743,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double[] HREgeomPartialRank(double[][] matrix,  double[] knowVector){
         validateMatrixAndVector(matrix, knowVector);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", knowVector);
         try {
@@ -824,15 +760,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double[] HREgeomFullRank(double[][] matrix,  double[] knowVector){
         validateMatrixAndVector(matrix, knowVector);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", knowVector);
         try {
@@ -841,15 +777,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double[] HREgeomRescaledRank(double[][] matrix,  double[] knowVector){
         validateMatrixAndVector(matrix, knowVector);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", knowVector);
         try {
@@ -858,15 +794,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double koczkodajTriadIdx(double[] triad){
         validateTriad(triad);
-        engine = makeCaller();
+        openConnection();
         engine.put("v", triad);
         try {
             engine.eval("res <- koczkodajTriadIdx(v)");
@@ -874,15 +810,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
-        engine.close();
+        double result = ((double[]) engine.get("res"))[0];
+        closeConnection();
         return result;
     }
 
 
     public double[] koczkodajTheWorstTriad(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- koczkodajTheWorstTriad(m)");
@@ -890,8 +826,8 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
@@ -899,7 +835,7 @@ public class PairwiseCompairsons {
     public double[][] koczkodajTheWorstTriads(double[][] matrix,  int numberOfTriads){
         validateMatrix(matrix);
         validateInt(numberOfTriads);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("v", numberOfTriads);
         try {
@@ -908,15 +844,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
-        engine.close();
-        return matrix;
+        double[][] matrixResult = (double[][]) engine.get("res");
+        closeConnection();
+        return matrixResult;
     }
 
 
     public double koczkodajIdx(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- koczkodajIdx(m)");
@@ -924,15 +860,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
-        engine.close();
+        double result = ((double[]) engine.get("res"))[0];
+        closeConnection();
         return result;
     }
 
 
     public double[] koczkodajConsistentTriad(double[] triad){
         validateTriad(triad);
-        engine = makeCaller();
+        openConnection();
         engine.put("v", triad);
         try {
             engine.eval("res <- koczkodajConsistentTriad(v)");
@@ -940,15 +876,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 
 
     public double[][] koczkodajImprovedMatrixStep(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- t(koczkodajImprovedMatrixStep(m))");
@@ -956,9 +892,9 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
-        engine.close();
-        return matrix;
+        double[][] matrixResult = (double[][]) engine.get("res");
+        closeConnection();
+        return matrixResult;
     }
 
 
@@ -972,7 +908,7 @@ public class PairwiseCompairsons {
         validateCheckSize(countLenth.size());
 
         double[][] bigMatrix = rbindMatrices(matrices);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", bigMatrix);
         try {
             engine.eval("res <- t(AIJaddFromVector(m))");
@@ -980,9 +916,9 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        matrix = ((double[][]) engine.get("res"));
-        engine.close();
-        return matrix;
+        double[][] matrixResult = ((double[][]) engine.get("res"));
+        closeConnection();
+        return matrixResult;
     }
 
 
@@ -996,7 +932,7 @@ public class PairwiseCompairsons {
         validateCheckSize(countLenth.size());
 
         double[][] bigMatrix = rbindMatrices(matrices);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", bigMatrix);
         try {
             engine.eval("res <- t(AIJgeomFromVector(m))");
@@ -1004,9 +940,9 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        matrix = ((double[][]) engine.get("res"));
-        engine.close();
-        return matrix;
+        double[][] matrixResult = ((double[][]) engine.get("res"));
+        closeConnection();
+        return matrixResult;
     }
 
     public double[][] rbindMatrices(double[][]... matrices){
@@ -1031,7 +967,7 @@ public class PairwiseCompairsons {
         validateCheckSize(countLenth.size());
 
         double[] bigVector = rbindVectors(vectors);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", bigVector);
         engine.put("len", vectors[0].length);
         try {
@@ -1040,8 +976,8 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = ((double[]) engine.get("res"));
-        engine.close();
+        double[] vector = ((double[]) engine.get("res"));
+        closeConnection();
         return vector;
     }
 
@@ -1056,7 +992,7 @@ public class PairwiseCompairsons {
 
 
         double[] bigVector = rbindVectors(vectors);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", bigVector);
         engine.put("len", vectors[0].length);
         try {
@@ -1065,8 +1001,8 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = ((double[]) engine.get("res"));
-        engine.close();
+        double[] vector = ((double[]) engine.get("res"));
+        closeConnection();
         return vector;
     }
 
@@ -1085,7 +1021,7 @@ public class PairwiseCompairsons {
     public double harkerMatrixPlaceHolderCount(double[][] matrix, int row){
         validateMatrix(matrix);
         validateInt(row);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("r", row);
         try {
@@ -1094,15 +1030,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
-        engine.close();
+        double result = ((double[]) engine.get("res"))[0];
+        closeConnection();
         return result;
     }
 
 
     public double[][] harkerMatrix(double[][] matrix){
         validateMatrix(matrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         try {
             engine.eval("res <- t(harkerMatrix(m))");
@@ -1110,15 +1046,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
-        engine.close();
-        return matrix;
+        double[][] matrixResult = (double[][]) engine.get("res");
+        closeConnection();
+        return matrixResult;
     }
 
 
     public double[][] errorMatrix(double[][] matrix, double[] rankingOfMatrix){
         validateMatrixAndVector(matrix, rankingOfMatrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("r", rankingOfMatrix);
         try {
@@ -1127,15 +1063,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
-        engine.close();
-        return matrix;
+        double[][] matrixResult = (double[][]) engine.get("res");
+        closeConnection();
+        return matrixResult;
     }
 
 
     public double[][] localDiscrepancyMatrix(double[][] matrix, double[] rankingOfMatrix){
         validateMatrixAndVector(matrix, rankingOfMatrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("r", rankingOfMatrix);
         try {
@@ -1144,15 +1080,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
-        engine.close();
-        return matrix;
+        double[][] matrixResult = (double[][]) engine.get("res");
+        closeConnection();
+        return matrixResult;
     }
 
 
     public double globalDiscrepancy(double[][] matrix, double[] rankingOfMatrix){
         validateMatrixAndVector(matrix, rankingOfMatrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("r", rankingOfMatrix);
         try {
@@ -1161,8 +1097,8 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
-        engine.close();
+        double result = ((double[]) engine.get("res"))[0];
+        closeConnection();
         return result;
     }
 
@@ -1180,25 +1116,25 @@ public class PairwiseCompairsons {
 
     public int[][] cop1ViolationList(double[][] matrix, double[] rankingOfMatrix){
         validateMatrixAndVector(matrix, rankingOfMatrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("r", rankingOfMatrix);
         try {
-            engine.eval("res <- cop1ViolationList(m,r)");
+            engine.eval("res <- t(cop1ViolationList(m,r))");
         } catch (ScriptException e) {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
-        int[][] intMatrix = castToIntMatrix(matrix);
-        engine.close();
+        double[][] matrixResult = (double[][]) engine.get("res");
+        int[][] intMatrix = castToIntMatrix(matrixResult);
+        closeConnection();
         return intMatrix;
     }
 
 
     public boolean cop1Check(double[][] matrix, double[] rankingOfMatrix){
         validateMatrixAndVector(matrix, rankingOfMatrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("r", rankingOfMatrix);
         try {
@@ -1207,34 +1143,34 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
+        double result = ((double[]) engine.get("res"))[0];
         boolean resBool = result == 0.0 ? false : true;
-        engine.close();
+        closeConnection();
         return resBool;
     }
 
 
     public int[][] cop2ViolationList(double[][] matrix, double[] rankingOfMatrix){
         validateMatrixAndVector(matrix, rankingOfMatrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("r", rankingOfMatrix);
         try {
-            engine.eval("res <- cop2ViolationList(m,r)");
+            engine.eval("res <- t(cop2ViolationList(m,r))");
         } catch (ScriptException e) {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
-        int[][] intMatrix = castToIntMatrix(matrix);
-        engine.close();
+        double[][] matrixResult = (double[][]) engine.get("res");
+        int[][] intMatrix = castToIntMatrix(matrixResult);
+        closeConnection();
         return intMatrix;
     }
 
 
     public boolean cop2Check(double[][] matrix, double[] rankingOfMatrix){
         validateMatrixAndVector(matrix, rankingOfMatrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("m", matrix);
         engine.put("r", rankingOfMatrix);
         try {
@@ -1243,16 +1179,16 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
+        double result = ((double[]) engine.get("res"))[0];
         boolean resBool = result == 0.0 ? false : true;
-        engine.close();
+        closeConnection();
         return resBool;
     }
 
 
     public double kendallTauDistance(double[] vectorA, double[] vectorB){
         validateTwoDoubleVectorToKendall(vectorA, vectorB);
-        engine = makeCaller();
+        openConnection();
         engine.put("v1", vectorA);
         engine.put("v2", vectorB);
         try {
@@ -1261,15 +1197,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
-        engine.close();
+        double result = ((double[]) engine.get("res"))[0];
+        closeConnection();
         return result;
     }
 
 
     public double normalizedKendallTauDistance(double[] vectorA, double[] vectorB){
         validateTwoDoubleVectorToKendall(vectorA, vectorB);
-        engine = makeCaller();
+        openConnection();
         engine.put("v1", vectorA);
         engine.put("v2", vectorB);
         try {
@@ -1278,15 +1214,15 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        result = ((double[]) engine.get("res"))[0];
-        engine.close();
+        double result = ((double[]) engine.get("res"))[0];
+        closeConnection();
         return result;
     }
 
 
     public double[][] consistentMatrixFromRank(double[] rankingOfMatrix){
         validateDoubleVector(rankingOfMatrix);
-        engine = makeCaller();
+        openConnection();
         engine.put("r", rankingOfMatrix);
         try {
             engine.eval("res <- t(consistentMatrixFromRank(r))");
@@ -1294,14 +1230,14 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        matrix = (double[][]) engine.get("res");
-        engine.close();
-        return matrix;
+        double[][] matrixResult = (double[][]) engine.get("res");
+        closeConnection();
+        return matrixResult;
     }
 
 
     public double[] rankOrder(double[] rankingOfMatrix){
-        engine = makeCaller();
+        openConnection();
         engine.put("r", rankingOfMatrix);
         try {
             engine.eval("res <- rankOrder(r)");
@@ -1309,8 +1245,8 @@ public class PairwiseCompairsons {
             e.printStackTrace();
         }
 
-        vector = (double[]) engine.get("res");
-        engine.close();
+        double[] vector = (double[]) engine.get("res");
+        closeConnection();
         return vector;
     }
 }
