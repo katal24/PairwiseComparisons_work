@@ -7,7 +7,7 @@
 principalEigenVector(matrix)
 }
 \arguments{
-\item{matrix}{- matrix}
+\item{matrix}{- PC matrix}
 }
 \value{
 the eigenvector of matrix corresponding to itd principal eigenvaluex

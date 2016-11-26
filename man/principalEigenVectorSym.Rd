@@ -2,12 +2,12 @@
 % Please edit documentation in R/pairwiseComparisons.R
 \name{principalEigenVectorSym}
 \alias{principalEigenVectorSym}
-\title{A symbolic version of function principalEigenVector}
+\title{Eigenvector of matrix (symbolic version)}
 \usage{
 principalEigenVectorSym(matrix)
 }
 \arguments{
-\item{matrix}{- matrix}
+\item{matrix}{- PC matrix}
 }
 \value{
 the eigenvector of matrix corresponding to itd principal eigenvaluex

@@ -17,7 +17,7 @@ chopM <- function(matrix){
 #################### Eigenvalue Rank Methods ###################
 #' @title The largest principal eigenvalue
 #' @description Returns the largest principal eigenvalue of matrix
-#' @param matrix - matrix
+#' @param matrix - PC matrix
 #' @return the largest principal eigenvalue of matrix
 #' @export
 principalEigenValue <- function(matrix){
@@ -26,8 +26,9 @@ principalEigenValue <- function(matrix){
   chopV(maxEigenVal)
 }
 
-#' A symbolic version of function principalEigenValue
-#' @param matrix - matrix
+#' @title The largest principal eigenvalue (symbolic version)
+#' @description A symbolic version of function principalEigenValue
+#' @param matrix - PC matrix
 #' @return the largest principal eigenvalue of matrix
 #' @export
 principalEigenValueSym <- function(matrix){
@@ -36,7 +37,7 @@ principalEigenValueSym <- function(matrix){
 
 #' @title Eigenvector of matrix
 #' @description Returns the eigenvector of matrix corresponding to itd principal eigenvalue
-#' @param matrix - matrix
+#' @param matrix - PC matrix
 #' @return the eigenvector of matrix corresponding to itd principal eigenvaluex
 #' @export
 principalEigenVector <- function(matrix){
@@ -45,8 +46,9 @@ principalEigenVector <- function(matrix){
   chopM(maxEigenVector)
 }
 
-#' A symbolic version of function principalEigenVector
-#' @param matrix - matrix
+#' @title Eigenvector of matrix (symbolic version)
+#' @description A symbolic version of function principalEigenVector
+#' @param matrix - PC matrix
 #' @return the eigenvector of matrix corresponding to itd principal eigenvaluex
 #' @export
 principalEigenVectorSym <- function(matrix){
@@ -55,7 +57,7 @@ principalEigenVectorSym <- function(matrix){
 
 #' @title Value of the Saaty Inconsistency Index
 #' @description Returns the value of the Saaty Inconsistency Index computed for the matrix
-#' @param matrix - matrix
+#' @param matrix - PC matrix
 #' @return the value of the Saaty Inconsistency Index computed for the matrix
 #' @export
 saatyIdx <- function(matrix){
@@ -66,8 +68,9 @@ saatyIdx <- function(matrix){
   chopV((alpha - n)/(n-1))
 }
 
-#' A symbolic version of function saatyIdxSym
-#' @param matrix - matrix
+#' @title Value of the Saaty Inconsistency Index (symbolic version)
+#' @description A symbolic version of function saatyIdxSym
+#' @param matrix - PC matrix
 #' @return the value of the Saaty Inconsistency Index computed for the matrix
 #' @export
 saatyIdxSym <- function(matrix){
@@ -78,7 +81,7 @@ saatyIdxSym <- function(matrix){
 
 #' @title Rescaled principal eigen vector of matrix
 #' @description Returns the principal eigen vector of matrix rescaled in a way that the sum of its entries is 1
-#' @param matrix - matrix
+#' @param matrix - PC matrix
 #' @return the rescaled principal eigen vector of matrix
 #' @export
 eigenValueRank <- function(matrix){
@@ -88,8 +91,9 @@ eigenValueRank <- function(matrix){
   chopM(eigenVector/sum(eigenVector))
 }
 
-#' A symbolic version of function eigenValueRank
-#' @param matrix - matrix
+#' @title Rescaled principal eigen vector of matrix (symbolic version)
+#' @description   A symbolic version of function eigenValueRank
+#' @param matrix - PC matrix
 #' @return the principal eigen vector of matrix rescaled in a way that the sum of its entries is 1
 #' @export
 eigenValueRankSym <- function(matrix){
@@ -104,7 +108,7 @@ eigenValueRankSym <- function(matrix){
 #' @param M - n x n criteria matrix
 #' @param ... - matrixes with the comparisons of alternatives with respect to the given criteria
 #' @return multicriteria ranking using eigenvalue based method
-#' @export
+#' @export ----
 ahp <- function(M, ...){
   counter <- 0
   eigenVectorAc <- eigenValueRankSym(M)
@@ -120,7 +124,7 @@ ahp <- function(M, ...){
 ################### Geometric mean rankings ###################
 #' @title Rank list given as geometric means
 #' @description Returns rank list given as geometric means of rows of the matrix
-#' @param matrix - matrix
+#' @param matrix - PC matrix
 #' @return The rank list given as geometric means
 #' @export
 geometricRank <- function(matrix){
@@ -132,7 +136,7 @@ geometricRank <- function(matrix){
 #' @title Rescaled rank list given as geometric means
 #' @description Returns rank list given as geometric means of rows of the matrix rescaled in way
 #' that the sum of its entries is 1
-#' @param matrix - matrix
+#' @param matrix - PC matrix
 #' @return Rescaled rank list given as geometric means of rows of the matrix
 #' @export
 geometricRescaledRank <- function(matrix){
@@ -148,19 +152,20 @@ geometricRescaledRank <- function(matrix){
 
 #' @title Element of matrix
 #' @description Returns [r,c] element of matrix
-#' @param matrix - matrix
+#' @param matrix - PC matrix
 #' @param r - row
 #' @param c - column
 #' @return [r,c] element of matrix
 #' @export
 getMatrixEntry <- function(matrix, r, c){
-  matrix[r,c]
+  element <- matrix[r,c]
+  element
 }
 
 #' @title Recipropal matrix
 #' @description Recreates recipropal matrix of the basis of upper-triagle of matrix
 #' @param matrix - matrix
-#' @return recipropal matrix
+#' @return recipropal PC matrix
 #' @export
 recreatePCMatrix <- function(matrix){
   for(r in 1:dim(matrix)[1]-1)
@@ -172,22 +177,21 @@ recreatePCMatrix <- function(matrix){
 
 #' @title Delete rows
 #' @description Delete rows from matrix
-#' @param martix - matrix
+#' @param martix - PC matrix
 #' @param listOfRows - indices of rows which need to be deleted
 #' @return matrix without deleted rows
-#' @export
+#' @export ----
 deleteRows <- function(matrix, listOfRows){
   matrix <- matrix[-listOfRows,]
   matrix
 }
 
-#pokaz
 #' @title Delete columns
 #' @description Delete columns from matrix
 #' @param martix - matrix
 #' @param listOfColumns - indices of columns which need to be deleted
 #' @return matrix without deleted columns
-#' @export
+#' @export ----
 deleteColumns <- function(matrix, listOfColumns){
   matrix <- matrix[,-listOfColumns]
   matrix
@@ -198,7 +202,7 @@ deleteColumns <- function(matrix, listOfColumns){
 #' @param martix - matrix
 #' @param listOfRowsAndColumns - indices of rows columns which need to be deleted
 #' @return matrix without deleted rows and columns
-#' @export
+#' @export ----
 deleteRowsAndColumns <- function(matrix, listOfRowsAndColumns){
   matrix <- matrix[-listOfRowsAndColumns,-listOfRowsAndColumns]
 }

@@ -7,7 +7,7 @@
 geometricRescaledRank(matrix)
 }
 \arguments{
-\item{matrix}{- matrix}
+\item{matrix}{- PC matrix}
 }
 \value{
 Rescaled rank list given as geometric means of rows of the matrix

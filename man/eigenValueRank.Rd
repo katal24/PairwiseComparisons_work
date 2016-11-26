@@ -7,7 +7,7 @@
 eigenValueRank(matrix)
 }
 \arguments{
-\item{matrix}{- matrix}
+\item{matrix}{- PC matrix}
 }
 \value{
 the rescaled principal eigen vector of matrix

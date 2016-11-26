@@ -2,12 +2,12 @@
 % Please edit documentation in R/pairwiseComparisons.R
 \name{saatyIdxSym}
 \alias{saatyIdxSym}
-\title{A symbolic version of function saatyIdxSym}
+\title{Value of the Saaty Inconsistency Index (symbolic version)}
 \usage{
 saatyIdxSym(matrix)
 }
 \arguments{
-\item{matrix}{- matrix}
+\item{matrix}{- PC matrix}
 }
 \value{
 the value of the Saaty Inconsistency Index computed for the matrix

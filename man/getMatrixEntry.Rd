@@ -7,7 +7,7 @@
 getMatrixEntry(matrix, r, c)
 }
 \arguments{
-\item{matrix}{- matrix}
+\item{matrix}{- PC matrix}
 
 \item{r}{- row}
 

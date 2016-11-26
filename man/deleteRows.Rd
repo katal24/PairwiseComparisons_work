@@ -9,7 +9,7 @@ deleteRows(matrix, listOfRows)
 \arguments{
 \item{listOfRows}{- indices of rows which need to be deleted}
 
-\item{martix}{- matrix}
+\item{martix}{- PC matrix}
 }
 \value{
 matrix without deleted rows

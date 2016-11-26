@@ -10,7 +10,7 @@ recreatePCMatrix(matrix)
 \item{matrix}{- matrix}
 }
 \value{
-recipropal matrix
+recipropal PC matrix
 }
 \description{
 Recreates recipropal matrix of the basis of upper-triagle of matrix

@@ -2,12 +2,12 @@
 % Please edit documentation in R/pairwiseComparisons.R
 \name{principalEigenValueSym}
 \alias{principalEigenValueSym}
-\title{A symbolic version of function principalEigenValue}
+\title{The largest principal eigenvalue (symbolic version)}
 \usage{
 principalEigenValueSym(matrix)
 }
 \arguments{
-\item{matrix}{- matrix}
+\item{matrix}{- PC matrix}
 }
 \value{
 the largest principal eigenvalue of matrix

@@ -7,7 +7,7 @@
 geometricRank(matrix)
 }
 \arguments{
-\item{matrix}{- matrix}
+\item{matrix}{- PC matrix}
 }
 \value{
 The rank list given as geometric means

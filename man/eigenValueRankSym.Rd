@@ -2,12 +2,12 @@
 % Please edit documentation in R/pairwiseComparisons.R
 \name{eigenValueRankSym}
 \alias{eigenValueRankSym}
-\title{A symbolic version of function eigenValueRank}
+\title{Rescaled principal eigen vector of matrix (symbolic version)}
 \usage{
 eigenValueRankSym(matrix)
 }
 \arguments{
-\item{matrix}{- matrix}
+\item{matrix}{- PC matrix}
 }
 \value{
 the principal eigen vector of matrix rescaled in a way that the sum of its entries is 1

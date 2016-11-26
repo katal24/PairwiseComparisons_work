@@ -7,7 +7,7 @@
 principalEigenValue(matrix)
 }
 \arguments{
-\item{matrix}{- matrix}
+\item{matrix}{- PC matrix}
 }
 \value{
 the largest principal eigenvalue of matrix

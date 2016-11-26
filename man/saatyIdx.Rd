@@ -7,7 +7,7 @@
 saatyIdx(matrix)
 }
 \arguments{
-\item{matrix}{- matrix}
+\item{matrix}{- PC matrix}
 }
 \value{
 the value of the Saaty Inconsistency Index computed for the matrix
