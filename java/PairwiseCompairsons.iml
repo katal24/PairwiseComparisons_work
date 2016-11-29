@@ -8,5 +8,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="RCaller-3.1-SNAPSHOT-jar-with-dependencies" level="project" />
+    <orderEntry type="library" name="org.apache.commons.io" level="project" />
   </component>
 </module>

@@ -1,9 +1,15 @@
 package main.out.pl.edu.agh.talaga;
 
 import com.github.rcaller.scriptengine.RCallerScriptEngine;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +25,7 @@ public class PairwiseCompairsons {
     private boolean engineIsOpen;
 
     public PairwiseCompairsons(){
+        createTempFile();
         makeEngine();
         keepOpenConnection = false;
         engineIsOpen = false;
@@ -38,6 +45,26 @@ public class PairwiseCompairsons {
         super.finalize();
         if(engineIsOpen){
             engine.close();
+        }
+    }
+
+    private void createTempFile(){
+//        InputStream is = getClass().getResourceAsStream("main/pairwiseComparisons.R");
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+//        try {
+//            String line = reader.readLine();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+
+        URL fileResource = getClass().getResource("pairwiseComparisons.R");
+        File tempFile;
+        try {
+            tempFile = File.createTempFile(FilenameUtils.getBaseName(fileResource.getFile()),
+                            FilenameUtils.getExtension(fileResource.getFile()));
+            IOUtils.copy(fileResource.openStream(), FileUtils.openOutputStream(tempFile));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
