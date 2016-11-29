@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/PairwiseCompairsons.iml" filepath="$PROJECT_DIR$/PairwiseCompairsons.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PairwiseComparisons.iml" filepath="$PROJECT_DIR$/PairwiseComparisons.iml" />
     </modules>
   </component>
 </project>

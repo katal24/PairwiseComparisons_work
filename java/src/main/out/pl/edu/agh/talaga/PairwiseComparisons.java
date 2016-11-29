@@ -1,15 +1,9 @@
 package main.out.pl.edu.agh.talaga;
 
 import com.github.rcaller.scriptengine.RCallerScriptEngine;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,21 +11,21 @@ import java.util.Set;
 /**
  * Created by dawid on 07.11.16.
  */
-public class PairwiseCompairsons {
+public class PairwiseComparisons {
 
     private ScriptEngineManager manager;
     private RCallerScriptEngine engine;
     private boolean keepOpenConnection;
     private boolean engineIsOpen;
 
-    public PairwiseCompairsons(){
+    public PairwiseComparisons(){
         createTempFile();
         makeEngine();
         keepOpenConnection = false;
         engineIsOpen = false;
     }
 
-    public PairwiseCompairsons(boolean keepOpenConnection){
+    public PairwiseComparisons(boolean keepOpenConnection){
         makeEngine();
         this.keepOpenConnection = keepOpenConnection;
         engineIsOpen = false;
@@ -57,15 +51,15 @@ public class PairwiseCompairsons {
 //            e.printStackTrace();
 //        }
 
-        URL fileResource = getClass().getResource("pairwiseComparisons.R");
-        File tempFile;
-        try {
-            tempFile = File.createTempFile(FilenameUtils.getBaseName(fileResource.getFile()),
-                            FilenameUtils.getExtension(fileResource.getFile()));
-            IOUtils.copy(fileResource.openStream(), FileUtils.openOutputStream(tempFile));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        URL fileResource = getClass().getResource("pairwiseComparisons.R");
+//        File tempFile;
+//        try {
+//            tempFile = File.createTempFile(FilenameUtils.getBaseName(fileResource.getFile()),
+//                            FilenameUtils.getExtension(fileResource.getFile()));
+//            IOUtils.copy(fileResource.openStream(), FileUtils.openOutputStream(tempFile));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     void makeEngine() {
@@ -298,7 +292,6 @@ public class PairwiseCompairsons {
 
 
     public double principalEigenValueSym(double[][] matrix){
-        // walidacja
         validateMatrix(matrix);
         openConnection();
         engine.put("m", matrix);
@@ -313,9 +306,6 @@ public class PairwiseCompairsons {
         closeConnection();
         return result;
     }
-
-    // finalize na usuniecie elementu
-    // list -> matrix
 
 
     public double[] principalEigenVector(double[][] matrix){
@@ -1143,14 +1133,19 @@ public class PairwiseCompairsons {
 
     public int[][] cop1ViolationList(double[][] matrix, double[] rankingOfMatrix){
         validateMatrixAndVector(matrix, rankingOfMatrix);
+        boolean temp = cop1Check(matrix, rankingOfMatrix);
+        if(temp){
+            return new int[][]{};
+        }
         openConnection();
         engine.put("m", matrix);
         engine.put("r", rankingOfMatrix);
         try {
-            engine.eval("res <- t(cop1ViolationList(m,r))");
+            engine.eval("res <- cop1ViolationList(m,r)");
         } catch (ScriptException e) {
             e.printStackTrace();
         }
+
 
         double[][] matrixResult = (double[][]) engine.get("res");
         int[][] intMatrix = castToIntMatrix(matrixResult);
@@ -1179,11 +1174,15 @@ public class PairwiseCompairsons {
 
     public int[][] cop2ViolationList(double[][] matrix, double[] rankingOfMatrix){
         validateMatrixAndVector(matrix, rankingOfMatrix);
+        boolean temp = cop2Check(matrix, rankingOfMatrix);
+        if(temp){
+            return new int[][]{};
+        }
         openConnection();
         engine.put("m", matrix);
         engine.put("r", rankingOfMatrix);
         try {
-            engine.eval("res <- t(cop2ViolationList(m,r))");
+            engine.eval("res <- cop2ViolationList(m,r)");
         } catch (ScriptException e) {
             e.printStackTrace();
         }
